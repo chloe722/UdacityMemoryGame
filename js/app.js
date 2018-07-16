@@ -32,11 +32,18 @@ class Card {
         this.element.classList.add("show");
     }
     
-    close(){
+    setClose(){
         this.isOpen = false;
         this.element.classList.remove("open");
         this.element.classList.remove("show");
     }
+
+    setMatch(){
+        this.setClose();
+        this.element.classList.add("match");
+    
+    }
+
 
     onClick(cb){
         let card = this;
@@ -44,22 +51,22 @@ class Card {
             cb(card);
         });
     }
-
-    /**
-     * 
-     * @param {Card} other 
-     */
-    pairWith(other){
-        this.pairedCard = other;
-    }
 }
 
 class Game {
     constructor(){
-        /** @type Card[] */
-        this.cards = this.createCards();
-
-        this.deckElement = this.createDeckElement();
+        this.gameContainer = document.getElementById("gameContainer");
+        this.scoreContainer = document.getElementById("scoreContainer");
+        this.restartButton = document.getElementById("restartButton");
+        this.movesContainer = document.getElementById("movesContainer");
+        this.star1 = document.getElementById("star1");
+        this.star2 = document.getElementById("star2");
+        this.star3 = document.getElementById("star3");
+        this.timer = document.getElementById("timer");
+        this.gameStartTime = Date.now();  // in millisecond
+        this.timerStar();
+    
+        this.restartButton.addEventListener("click", this.restart.bind(this));
     }
 
     createCards() {
@@ -67,8 +74,6 @@ class Game {
         for(let cardName of initialCards){
             let card1 = this.createCard(cardName);
             let card2 = this.createCard(cardName);
-            card1.pairWith(card2);
-            card2.pairWith(card1);
             cards.push(card1);
             cards.push(card2);
         }
@@ -92,9 +97,40 @@ class Game {
         return deck;
     }
 
-    start(){
-        var gameContainer = document.getElementById("gameContainer");
-        gameContainer.appendChild(game.deckElement);
+    updateMove(){
+        this.movesContainer.textContent = this.counter;
+    }
+
+    setRating(){
+
+        if(this.counter >= 5 && this.counter < 10){
+            this.star3.classList.remove("fa-star");
+            this.star3.classList.add("fa-star-o");
+        }else if (this.counter >= 10 && this.counter < 15){
+            this.star2.classList.remove("fa-star");
+            this.star2.classList.add("fa-star-o");
+            
+        }else if (this.counter >= 15){
+            this.star1.classList.remove("fa-star");    
+            this.star1.classList.add("fa-star-o");           
+        }
+
+    }
+
+
+    setTimer(){
+        let seconds = Math.floor((Date.now() - this.gameStartTime) / 1000.0);
+        let min = Math.floor(seconds / 60 % 60);
+        let hr = Math.floor(seconds / 60 / 60);
+        seconds = seconds % 60;
+
+        this.timer.textContent = (hr? (hr > 9 ? hr : "0" + hr) : "00") + ":" + (min ? (min > 9 ? min : "0" + min) : "00")+
+         ":" + (seconds > 9 ? seconds : "0" + seconds);
+
+    }
+
+    timerStar(){
+        this.t = setInterval(this.setTimer.bind(this), 1000);
     }
 
     /**
@@ -102,16 +138,75 @@ class Game {
      * @param {Card} card 
      */
     handleOnClick(card){
-        card.open();
-        setTimeout(function(){
-            if(card.pairedCard.isOpen){
+        if(card == this.previousCard) { 
+            return; // double click same card
+        }
+        this.previousCard = card;
 
-            } else {
-                card.close();
+        let otherOpenCards = this.getOpenCards();
+
+
+        card.open();
+
+        if(otherOpenCards.length > 1) {
+            for(let otherCard of otherOpenCards){
+                otherCard.setClose();
             }
-        }, 1000);
+        } else if(otherOpenCards.length == 1){
+            let otherCard = otherOpenCards[0];
+
+            if(otherCard.cardName == card.cardName){
+                otherCard.setMatch();
+                card.setMatch();
+                
+                this.counter++;
+                
+                this.updateMove();
+
+                this.setRating();
+                
+            } else {
+                
+                this.counter++;
+                this.updateMove();
+                this.setRating();
+
+                setTimeout(function(){
+                    otherCard.setClose();
+                    card.setClose();
+                  
+                }, 1000);
+            }
+        }
+    }
+
+    getOpenCards(){
+        return this.cards.filter(card => card.isOpen);
+    }
+
+    start(){
+        this.counter = 0;
+        this.cards = this.createCards();
+        this.deckElement = this.createDeckElement();
+        this.gameContainer.appendChild(this.deckElement);
+        this.updateMove();
+        this.setRating();
+        // this.timerStar;
+        
+    }
+
+    restart(){
+        this.gameContainer.removeChild(this.deckElement);
+        this.star1.classList.remove("fa-star-o");
+        this.star1.classList.add("fa-star");
+        this.star2.classList.remove("fa-star-o");
+        this.star2.classList.add("fa-star");
+        this.star3.classList.remove("fa-star-o");
+        this.star3.classList.add("fa-star");
+        this.start();
     }
 }
+
 
 var game = new Game();
 game.start();
