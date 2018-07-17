@@ -1,8 +1,3 @@
-/*
- * Create a list that holds all of your cards
- */
-
-
 const initialCards = [
     "fa-diamond", 
     "fa-anchor",
@@ -41,9 +36,13 @@ class Card {
     setMatch(){
         this.setClose();
         this.element.classList.add("match");
-    
     }
 
+    isMatched(){
+        if(this.element.classList.contains("match")){
+            return true;
+        }
+    }
 
     onClick(cb){
         let card = this;
@@ -59,14 +58,22 @@ class Game {
         this.scoreContainer = document.getElementById("scoreContainer");
         this.restartButton = document.getElementById("restartButton");
         this.movesContainer = document.getElementById("movesContainer");
+        this.congratsContainer = document.getElementById("congratsContainer");
+        this.testingBtn = document.getElementById("testingbtn");
+        this.playAgainBtn = document.getElementById("playAgainBtn");
+        this.gameTitle = document.getElementById("title");        
         this.star1 = document.getElementById("star1");
         this.star2 = document.getElementById("star2");
         this.star3 = document.getElementById("star3");
         this.timer = document.getElementById("timer");
+        this.timerResult = document.getElementById("timerResult");
+        this.moveResult = document.getElementById("moveResult");
+        this.ratingResult = document.getElementById("ratingResult");
         this.gameStartTime = Date.now();  // in millisecond
         this.timerStar();
     
         this.restartButton.addEventListener("click", this.restart.bind(this));
+        this.playAgainBtn.addEventListener("click", this.playAgain.bind(this));
     }
 
     createCards() {
@@ -117,20 +124,54 @@ class Game {
 
     }
 
+    getRating(){
+        let ratingResult;
 
-    setTimer(){
+        if(this.counter < 5){
+            ratingResult= 3;
+        }else if(this.counter >= 5 && this.counter < 10){
+            ratingResult= 2;        
+        }else if (this.counter >= 10 && this.counter < 15){
+            ratingResult= 1;        
+        }else if (this.counter >= 15){
+            ratingResult= 0;        
+        }
+
+        return ratingResult;
+    }
+
+    getTimePassed(){
         let seconds = Math.floor((Date.now() - this.gameStartTime) / 1000.0);
         let min = Math.floor(seconds / 60 % 60);
         let hr = Math.floor(seconds / 60 / 60);
         seconds = seconds % 60;
 
-        this.timer.textContent = (hr? (hr > 9 ? hr : "0" + hr) : "00") + ":" + (min ? (min > 9 ? min : "0" + min) : "00")+
+        return (hr? (hr > 9 ? hr : "0" + hr) : "00") + ":" + (min ? (min > 9 ? min : "0" + min) : "00")+
          ":" + (seconds > 9 ? seconds : "0" + seconds);
+    }
 
+    setTimer(){
+
+        this.timer.textContent = this.getTimePassed();
     }
 
     timerStar(){
         this.t = setInterval(this.setTimer.bind(this), 1000);
+    }
+
+    restartTime(){
+        this.gameStartTime = Date.now();
+    }
+
+
+    checkIfEnd(){
+        let matchedCards = this.cards.filter(function(card) {
+            return card.isMatched();
+        });
+
+        if(matchedCards.length == this.cards.length){
+            this.showCongrats();
+        }
     }
 
     /**
@@ -138,13 +179,12 @@ class Game {
      * @param {Card} card 
      */
     handleOnClick(card){
-        if(card == this.previousCard) { 
+        if(card == this.previousCard && card.isOpen) { 
             return; // double click same card
         }
         this.previousCard = card;
 
         let otherOpenCards = this.getOpenCards();
-
 
         card.open();
 
@@ -158,19 +198,23 @@ class Game {
             if(otherCard.cardName == card.cardName){
                 otherCard.setMatch();
                 card.setMatch();
+
+                
                 
                 this.counter++;
                 
                 this.updateMove();
 
                 this.setRating();
+
+                this.checkIfEnd();
                 
             } else {
                 
                 this.counter++;
                 this.updateMove();
                 this.setRating();
-
+            
                 setTimeout(function(){
                     otherCard.setClose();
                     card.setClose();
@@ -184,6 +228,16 @@ class Game {
         return this.cards.filter(card => card.isOpen);
     }
 
+    showCongrats(){
+        this.timerResult.textContent = this.getTimePassed();
+        this.moveResult.textContent = this.counter;
+        this.ratingResult.textContent = this.getRating();
+        this.gameTitle.setAttribute("style", "display: none");        
+        this.gameContainer.setAttribute("style", "display : none");
+        this.scoreContainer.setAttribute("style", "display: none");
+        this.congratsContainer.setAttribute("style", "display : block");
+    }
+
     start(){
         this.counter = 0;
         this.cards = this.createCards();
@@ -191,7 +245,6 @@ class Game {
         this.gameContainer.appendChild(this.deckElement);
         this.updateMove();
         this.setRating();
-        // this.timerStar;
         
     }
 
@@ -203,24 +256,24 @@ class Game {
         this.star2.classList.add("fa-star");
         this.star3.classList.remove("fa-star-o");
         this.star3.classList.add("fa-star");
+        this.restartTime();
         this.start();
+        
     }
-}
 
+    playAgain(){
+        this.gameTitle.setAttribute("style", "display: block");        
+        this.scoreContainer.setAttribute("style", "display: block");
+        this.gameContainer.setAttribute("style", "display : block");
+        this.congratsContainer.setAttribute("style", "display: none");
+        this.restart();
+    }
+
+}
 
 var game = new Game();
 game.start();
 
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-
-
-// Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -234,16 +287,3 @@ function shuffle(array) {
 
     return array;
 }
-
-
-
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */

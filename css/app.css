@@ -107,3 +107,39 @@ h1 {
     float: right;
     cursor: pointer;
 }
+
+h1, h2 {
+    text-align: center;
+    color: #173838;
+}
+
+
+#playAgainBtn{
+    display: block;
+    margin: 0 auto;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 100%;
+    background: #31a5a5;
+    color: #fcfcfc;
+    border: #31a5a5;
+}
+
+#congratIcn{
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+#gameContainer{
+    /* display: none; */
+}
+
+#congratsContainer{
+    display: none;
+    padding-top: 100px;
+}
+
+.test{
+    background: red;
+}
