@@ -44,7 +44,7 @@ class Card {
         }
     }
 
-    onClick(cb){
+    onClick(cb){ // pass callBack as parameter 
         let card = this;
         this.element.addEventListener("click", function(){
             cb(card);
@@ -74,22 +74,23 @@ class Game {
     
         this.restartButton.addEventListener("click", this.restart.bind(this));
         this.playAgainBtn.addEventListener("click", this.playAgain.bind(this));
+    
     }
 
-    createCards() {
+    createCards() {  //create Cards function
         let cards = [];
-        for(let cardName of initialCards){
-            let card1 = this.createCard(cardName);
-            let card2 = this.createCard(cardName);
-            cards.push(card1);
-            cards.push(card2);
+        for(let cardName of initialCards){ // loop through the intialCards array
+            let card1 = this.createCard(cardName); // create card1
+            let card2 = this.createCard(cardName); // create card2 
+            cards.push(card1);  //push created card1 into cards array
+            cards.push(card2); //push created card2 into cards array
         }
-        return shuffle(cards);
+        return shuffle(cards); // call shuffle function to shuffle the cards order
     }
 
-    createCard(cardName) {
-        let card = new Card(cardName);
-        card.onClick(this.handleOnClick.bind(this));
+    createCard(cardName) { 
+        let card = new Card(cardName); 
+        card.onClick(this.handleOnClick.bind(this)); //attach
         return card;
     }
 
@@ -104,11 +105,11 @@ class Game {
         return deck;
     }
 
-    updateMove(){
+    updateMove(){ //Update moves
         this.movesContainer.textContent = this.counter;
     }
 
-    setRating(){
+    setRating(){ // create Rating system
 
         if(this.counter >= 5 && this.counter < 10){
             this.star3.classList.remove("fa-star");
@@ -124,7 +125,7 @@ class Game {
 
     }
 
-    getRating(){
+    getRating(){ // get the rating result 
         let ratingResult;
 
         if(this.counter < 5){
@@ -140,7 +141,7 @@ class Game {
         return ratingResult;
     }
 
-    getTimePassed(){
+    getTimePassed(){ // get the player total playing time
         let seconds = Math.floor((Date.now() - this.gameStartTime) / 1000.0);
         let min = Math.floor(seconds / 60 % 60);
         let hr = Math.floor(seconds / 60 / 60);
@@ -164,13 +165,13 @@ class Game {
     }
 
 
-    checkIfEnd(){
+    checkIfEnd(){ //Check if the game end
         let matchedCards = this.cards.filter(function(card) {
-            return card.isMatched();
+            return card.isMatched();  
         });
 
-        if(matchedCards.length == this.cards.length){
-            this.showCongrats();
+        if(matchedCards.length == this.cards.length){ //check if all the matched cards found
+            this.showCongrats(); 
         }
     }
 
@@ -184,7 +185,7 @@ class Game {
         }
         this.previousCard = card;
 
-        let otherOpenCards = this.getOpenCards();
+        let otherOpenCards = this.getOpenCards(); 
 
         card.open();
 
@@ -198,8 +199,6 @@ class Game {
             if(otherCard.cardName == card.cardName){
                 otherCard.setMatch();
                 card.setMatch();
-
-                
                 
                 this.counter++;
                 
