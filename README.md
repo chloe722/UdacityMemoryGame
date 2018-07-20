@@ -9,5 +9,8 @@
 
 ## Game Guideline
 
-Flip the card and find the match. 
+Flip the card and find the match!
+
 Enjoy the game!
+
+![screenShot](img/gameScreenShot.png)
