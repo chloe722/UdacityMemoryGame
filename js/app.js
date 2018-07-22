@@ -1,3 +1,4 @@
+"use strict";
 const initialCards = [
     "fa-diamond", 
     "fa-anchor",
@@ -114,14 +115,14 @@ class Game {
         if(this.counter >= 5 && this.counter < 10){
             this.star3.classList.remove("fa-star");
             this.star3.classList.add("fa-star-o");
-        }else if (this.counter >= 10 && this.counter < 15){
+        }else if (this.counter >= 10){
             this.star2.classList.remove("fa-star");
             this.star2.classList.add("fa-star-o");
-            
-        }else if (this.counter >= 15){
-            this.star1.classList.remove("fa-star");    
-            this.star1.classList.add("fa-star-o");           
         }
+        // else if (this.counter >= 15){
+        //     this.star1.classList.remove("fa-star");    
+        //     this.star1.classList.add("fa-star-o");           
+        // }
 
     }
 
@@ -132,10 +133,8 @@ class Game {
             ratingResult= 3;
         }else if(this.counter >= 5 && this.counter < 10){
             ratingResult= 2;        
-        }else if (this.counter >= 10 && this.counter < 15){
+        }else if (this.counter >= 10){
             ratingResult= 1;        
-        }else if (this.counter >= 15){
-            ratingResult= 0;        
         }
 
         return ratingResult;
