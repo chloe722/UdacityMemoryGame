@@ -6,6 +6,7 @@ const initialCards = [
     "fa-bolt", "fa-bicycle", "fa-paper-plane-o", "fa-cube"];
 
 class Card {
+
     constructor(cardName){
         this.cardName = cardName;
         this.element = this.createElement(cardName);
@@ -46,10 +47,7 @@ class Card {
     }
 
     onClick(cb){ // pass callBack as parameter 
-        let card = this;
-        this.element.addEventListener("click", function(){
-            cb(card);
-        });
+        this.element.addEventListener("click", () => cb(this));
     }
 }
 
@@ -62,7 +60,7 @@ class Game {
         this.congratsContainer = document.getElementById("congratsContainer");
         this.testingBtn = document.getElementById("testingbtn");
         this.playAgainBtn = document.getElementById("playAgainBtn");
-        this.gameTitle = document.getElementById("title");        
+        this.gameTitle = document.getElementById("title");
         this.star1 = document.getElementById("star1");
         this.star2 = document.getElementById("star2");
         this.star3 = document.getElementById("star3");
@@ -70,7 +68,7 @@ class Game {
         this.timerResult = document.getElementById("timerResult");
         this.moveResult = document.getElementById("moveResult");
         this.ratingResult = document.getElementById("ratingResult");
-        this.gameStartTime = Date.now();  // in millisecond
+        this.gameStartTime = Date.now(); // in millisecond
         this.timerStar();
     
         this.restartButton.addEventListener("click", this.restart.bind(this));
@@ -78,20 +76,21 @@ class Game {
     
     }
 
-    createCards() {  //create Cards function
+    /** Create Cards function */
+    createCards() { 
         let cards = [];
         for(let cardName of initialCards){ // loop through the intialCards array
             let card1 = this.createCard(cardName); // create card1
-            let card2 = this.createCard(cardName); // create card2 
+            let card2 = this.createCard(cardName); 
             cards.push(card1);  //push created card1 into cards array
             cards.push(card2); //push created card2 into cards array
         }
         return shuffle(cards); // call shuffle function to shuffle the cards order
     }
 
-    createCard(cardName) { 
-        let card = new Card(cardName); 
-        card.onClick(this.handleOnClick.bind(this)); //attach
+    createCard(cardName) {
+        let card = new Card(cardName);
+        card.onClick(this.handleOnClick.bind(this));
         return card;
     }
 
@@ -106,11 +105,13 @@ class Game {
         return deck;
     }
 
-    updateMove(){ //Update moves
+    /** Update moves */
+    updateMove(){ 
         this.movesContainer.textContent = this.counter;
     }
 
-    setRating(){ // create Rating system
+    /** create Rating system function */
+    setRating(){ 
 
         if(this.counter >= 5 && this.counter < 10){
             this.star3.classList.remove("fa-star");
@@ -119,28 +120,23 @@ class Game {
             this.star2.classList.remove("fa-star");
             this.star2.classList.add("fa-star-o");
         }
-        // else if (this.counter >= 15){
-        //     this.star1.classList.remove("fa-star");    
-        //     this.star1.classList.add("fa-star-o");           
-        // }
-
     }
-
-    getRating(){ // get the rating result 
+    /** Get the rating result */
+    getRating(){ 
         let ratingResult;
 
         if(this.counter < 5){
             ratingResult= 3;
         }else if(this.counter >= 5 && this.counter < 10){
-            ratingResult= 2;        
+            ratingResult= 2;
         }else if (this.counter >= 10){
-            ratingResult= 1;        
+            ratingResult= 1;
         }
 
         return ratingResult;
     }
-
-    getTimePassed(){ // get the player total playing time
+    /** Get the player total playing time */
+    getTimePassed(){
         let seconds = Math.floor((Date.now() - this.gameStartTime) / 1000.0);
         let min = Math.floor(seconds / 60 % 60);
         let hr = Math.floor(seconds / 60 / 60);
@@ -163,14 +159,14 @@ class Game {
         this.gameStartTime = Date.now();
     }
 
-
-    checkIfEnd(){ //Check if the game end
+    /** Check if the game end */
+    checkIfEnd(){
         let matchedCards = this.cards.filter(function(card) {
-            return card.isMatched();  
+            return card.isMatched();
         });
 
         if(matchedCards.length == this.cards.length){ //check if all the matched cards found
-            this.showCongrats(); 
+            this.showCongrats();
         }
     }
 
@@ -179,8 +175,8 @@ class Game {
      * @param {Card} card 
      */
     handleOnClick(card){
-        if(card == this.previousCard && card.isOpen) { 
-            return; // double click same card
+        if(card == this.previousCard && card.isOpen) {
+            return; // prevent double click same card
         }
         this.previousCard = card;
 
@@ -230,7 +226,7 @@ class Game {
         this.timerResult.textContent = this.getTimePassed();
         this.moveResult.textContent = this.counter;
         this.ratingResult.textContent = this.getRating();
-        this.gameTitle.setAttribute("style", "display: none");        
+        this.gameTitle.setAttribute("style", "display: none");
         this.gameContainer.setAttribute("style", "display : none");
         this.scoreContainer.setAttribute("style", "display: none");
         this.congratsContainer.setAttribute("style", "display : block");
@@ -260,7 +256,7 @@ class Game {
     }
 
     playAgain(){
-        this.gameTitle.setAttribute("style", "display: block");        
+        this.gameTitle.setAttribute("style", "display: block");
         this.scoreContainer.setAttribute("style", "display: block");
         this.gameContainer.setAttribute("style", "display : block");
         this.congratsContainer.setAttribute("style", "display: none");
